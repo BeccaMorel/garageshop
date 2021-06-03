@@ -3,6 +3,8 @@
  */
 package ca.mcgill.ecse.carshop.application;
 
+import java.util.List;
+
 import ca.mcgill.ecse.carshop.model.*;
 public class CarShopApplication {
     public String getGreeting() {
@@ -15,11 +17,34 @@ public class CarShopApplication {
     
     /***Make the basic car shop***/
     static CarShop theCarShop = new CarShop();
+    static Customer activeUser = null;
     
     /***Retrieve the basic car shop***/
     
     public static CarShop getCarshop() {
     	
 		return theCarShop;
+    }
+    
+    /***Methods for login***/
+    
+    public static boolean isLoggedIn() {
+    	
+		return (activeUser != null);
+    }
+    
+    public static void login(String username, String pw) {
+    	List<Customer> custs = theCarShop.getCustomers();
+    	
+    	for(Customer cust : custs)
+	    {
+	    	if(cust.getUsername().equals(username))
+	    	{
+	    		if(cust.getPassword().equals(pw))
+	    		{
+	    			activeUser = cust;
+	    		}
+	    	}
+	    }
     }
 }

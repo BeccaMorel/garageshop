@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.File;
+import java.util.List;
 
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
@@ -13,13 +14,16 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
 import ca.mcgill.ecse.carshop.application.*;
+import ca.mcgill.ecse.carshop.model.*;
 
 public class CucumberStepDefinitions {
+	
+	static CarShop carShop;
 	
 	@Given("a Carshop system exists")
 	public void a_carshop_system_exists() {
 	    // Write code here that turns the phrase above into concrete actions
-	    CarShopApplication.getCarshop();
+	    carShop = CarShopApplication.getCarshop();
 	}
 	
 	/****LOGIN****/
@@ -32,19 +36,40 @@ public class CucumberStepDefinitions {
 	    // Double, Byte, Short, Long, BigInteger or BigDecimal.
 	    //
 	    // For other transformations you can register a DataTableType.
-	    throw new io.cucumber.java.PendingException();
+	    List<String> custNamePws = dataTable.asList();
+	    List<Customer> custs = carShop.getCustomers();
+	    
+	    boolean custExists = false;
+	    for(int i = 2; i < custNamePws.size(); i+=2)
+	    {
+		    for(Customer cust : custs)
+		    {
+		    	if(cust.getUsername() == custNamePws.get(i))
+		    	{
+		    		if(cust.getPassword() == custNamePws.get(i+1))
+		    		{
+		    			custExists = true;
+		    		}
+		    	}
+		    }
+		    if(!custExists)
+		    {
+		    	carShop.addCustomer(custNamePws.get(i), custNamePws.get(i+1));
+		    }
+		    custExists = false;
+	    }
 	}
 	
 	@When("the user tries to log in with username {string} and password {string}")
 	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
 	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+		CarShopApplication.login(string, string2);
 	}
 	
 	@Then("the user should be successfully logged in")
 	public void the_user_should_be_successfully_logged_in() {
 	    // Write code here that turns the phrase above into concrete actions
-	    throw new io.cucumber.java.PendingException();
+	    assertTrue(CarShopApplication.isLoggedIn());
 	}
 	
 	@Given("an owner account exists in the system")
