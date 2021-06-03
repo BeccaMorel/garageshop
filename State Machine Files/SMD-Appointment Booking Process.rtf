@@ -1,0 +1,58 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2578
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\froman\fcharset0 Times-Bold;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\margl1440\margr1440\vieww33720\viewh20680\viewkind0
+\deftab720
+\pard\pardeftab720\sa240\partightenfactor0
+
+\f0\b\fs48 \cf2 \expnd0\expndtw0\kerning0
+Appointment Booking Process \
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sa240\partightenfactor0
+\ls1\ilvl0
+\f1\b0\fs36 \cf2 The following description of the CarShop appointment booking process complements the Project Overview:\
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+The appointment booking process starts with a customer making an appointment. \
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+The customer may change or cancel her appointment up until the day before the appointment date. The customer may change to a completely different service and/or change to a completely different date/time at this point. \
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+When the customer arrives for an appointment, the owner starts the appointment. \
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+Note that the start time of an appointment in progress cannot be changed but the end time may change. \
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+The owner can indicate when an appointment ends, in which case the appointment is removed from the application. \
+\ls1\ilvl0\kerning1\expnd0\expndtw0 {\listtext	\uc0\u8226 	}\expnd0\expndtw0\kerning0
+The owner can also indicate if a customer does not show up for an appointment, in which case the appointment is again removed from the application and the number of no shows in the customer\'92s account is updated. \
+\pard\pardeftab720\partightenfactor0
+\cf2 \
+\'97 code Umple to generate code & diagram: \'97\
+\
+class Appointment \
+\{\
+  status\
+  \{\
+    Created\
+    \{\
+    updateDate -> Created;\
+    updateService -> Created;\
+    cancelAppointment -> Deleted;\
+      [IsDayBefore()==true] -> Confirmed;\
+    \}\
+    Confirmed\
+    \{\
+    startAppointment [IsCustomerAbsent() == false] -> InProgress;\
+    cancelAppointment[IsCustomerAbsent() == true] -> Canceled;\
+    \}\
+    InProgress\
+    \{\
+    endAppointment -> Deleted;\
+    \}\
+    Canceled\
+    \{\
+    updateCustomerAccount->Deleted;\
+    \}\
+    final Deleted\{\}\
+  \}\
+\}}
