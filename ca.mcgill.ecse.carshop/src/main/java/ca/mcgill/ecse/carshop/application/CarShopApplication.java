@@ -33,18 +33,30 @@ public class CarShopApplication {
 		return (activeUser != null);
     }
     
-    public static void login(String username, String pw) {
+    public static String login(String username, String pw) {
     	List<Customer> custs = theCarShop.getCustomers();
     	
+    	boolean success = false;
     	for(Customer cust : custs)
 	    {
 	    	if(cust.getUsername().equals(username))
 	    	{
 	    		if(cust.getPassword().equals(pw))
 	    		{
+	    			success = true;
 	    			activeUser = cust;
+	    			break;
 	    		}
 	    	}
 	    }
+    	if(!success)
+    	{
+    		activeUser = null;
+    		return "Username/password not found";
+    	}
+    	else
+    	{
+    		return "";
+    	}
     }
 }

@@ -1,6 +1,7 @@
 package ca.mcgill.ecse.carshop.features;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -19,6 +20,14 @@ import ca.mcgill.ecse.carshop.model.*;
 public class CucumberStepDefinitions {
 	
 	static CarShop carShop;
+	static String error;
+	
+	@After
+	public void teardown() {
+	    // Write code here that turns the phrase above into concrete actions
+	    carShop.delete();
+	    error = "";
+	}
 	
 	@Given("a Carshop system exists")
 	public void a_carshop_system_exists() {
@@ -63,13 +72,27 @@ public class CucumberStepDefinitions {
 	@When("the user tries to log in with username {string} and password {string}")
 	public void the_user_tries_to_log_in_with_username_and_password(String string, String string2) {
 	    // Write code here that turns the phrase above into concrete actions
-		CarShopApplication.login(string, string2);
+		error = CarShopApplication.login(string, string2);
 	}
 	
+	/***SUCCESSFUL***/
 	@Then("the user should be successfully logged in")
 	public void the_user_should_be_successfully_logged_in() {
 	    // Write code here that turns the phrase above into concrete actions
 	    assertTrue(CarShopApplication.isLoggedIn());
+	}
+	
+	/***UNSUCCESSFUL***/
+	@Then("the user should not be logged in")
+	public void the_user_should_not_be_logged_in() {
+	    // Write code here that turns the phrase above into concrete actions
+		assertFalse(CarShopApplication.isLoggedIn());
+	}
+	
+	@Then("an error message {string} shall be raised")
+	public void an_error_message_shall_be_raised(String string) {
+	    // Write code here that turns the phrase above into concrete actions
+	    assertEquals(error, string);
 	}
 	
 	@Given("an owner account exists in the system")

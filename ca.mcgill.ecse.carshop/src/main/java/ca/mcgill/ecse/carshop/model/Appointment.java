@@ -12,6 +12,9 @@ public class Appointment
   // MEMBER VARIABLES
   //------------------------
 
+  //Appointment State Machines
+  public enum Status { Created, Confirmed, InProgress, Canceled, Deleted }
+  private Status status;
   //Appointment Associations
   private Customer customer;
   private BookableService bookableService;
@@ -40,11 +43,192 @@ public class Appointment
     {
       throw new RuntimeException("Unable to create appointment due to carShop. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
     }
+    setStatus(Status.Created);
   }
 
   //------------------------
   // INTERFACE
   //------------------------
+  public String getStatusFullName()
+  {
+    String answer = status.toString();
+    return answer;
+  }
+
+  public Status getStatus()
+  {
+    return status;
+  }
+
+  public boolean updateDate()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Created:
+        setStatus(Status.Created);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean updateService()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Created:
+        setStatus(Status.Created);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean cancelAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Created:
+        setStatus(Status.Deleted);
+        wasEventProcessed = true;
+        break;
+      case Confirmed:
+        if (IsCustomerAbsent()==true)
+        {
+          setStatus(Status.Canceled);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private boolean IsCustomerAbsent() {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+private boolean __autotransition416__()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Created:
+        if (IsDayBefore()==true)
+        {
+          setStatus(Status.Confirmed);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private boolean IsDayBefore() {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+public boolean startAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Confirmed:
+        if (IsCustomerAbsent()==false)
+        {
+          setStatus(Status.InProgress);
+          wasEventProcessed = true;
+          break;
+        }
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean endAppointment()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case InProgress:
+        setStatus(Status.Deleted);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  public boolean updateCustomerAccount()
+  {
+    boolean wasEventProcessed = false;
+    
+    Status aStatus = status;
+    switch (aStatus)
+    {
+      case Canceled:
+        setStatus(Status.Deleted);
+        wasEventProcessed = true;
+        break;
+      default:
+        // Other states do respond to this event
+    }
+
+    return wasEventProcessed;
+  }
+
+  private void setStatus(Status aStatus)
+  {
+    status = aStatus;
+
+    // entry actions and do activities
+    switch(status)
+    {
+      case Created:
+        __autotransition416__();
+        break;
+      case Deleted:
+        delete();
+        break;
+    }
+  }
+  
+  
   /* Code from template association_GetOne */
   public Customer getCustomer()
   {
