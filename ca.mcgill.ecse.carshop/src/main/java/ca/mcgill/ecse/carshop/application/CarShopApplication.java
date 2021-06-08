@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 
 import ca.mcgill.ecse.carshop.model.*;
+import ca.mcgill.ecse.carshop.model.Technician.TechnicianType;
 public class CarShopApplication {
     public String getGreeting() {
         return "Welcome to The Car Shop!";
@@ -74,13 +75,27 @@ public class CarShopApplication {
                 		}
                 		else
                 		{
-                			System.out.println(activeUser.getAppointment(0));
-
-                			System.out.print("Update? (y/n): ");
-    						if(scan.next().equals("y"))
-    						{
-    							System.out.print("PROMPT FOR UPDATE");
-    						}
+                			for(Appointment apt: activeUser.getAppointments())
+                			{
+	                			System.out.println(apt.getBookableService().getName());
+	
+	                			System.out.print("Update? (y/n): ");
+	    						if(scan.next().equals("y"))
+	    						{
+	    							System.out.print("Please Select a New Service: ");
+	    							String service = scan.next();
+	    	                		
+	    	                		if(BookableService.hasWithName(service))
+	    	                		{
+	    	                			apt.delete();
+	    	                			theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
+	    	                		}
+	    	                		else
+	    	                		{
+	    	                			System.out.println("That service does not exist");
+	    	                		}
+	    						}
+                			}
                 		}
                 		
                 	}
@@ -93,10 +108,42 @@ public class CarShopApplication {
                 	if(!isLoggedIn())
                 	{
                 		System.out.print("Please Select a Username: ");
+                		String username = scan.next();
+                		
+                		List<Customer> custs = theCarShop.getCustomers();
+                		
+                		boolean custExists = false;
+                		for(Customer cust : custs)
+            		    {
+            		    	if(cust.getUsername().equals(username))
+            		    	{
+            		    		custExists = true;
+            		    		System.out.println("That username is taken");
+            		    		break;
+            		    	}
+            		    }
+            		    if(!custExists)
+            		    {
+            		    	System.out.print("Please Select a Password: ");
+    						String password = scan.next();
+            		    	theCarShop.addCustomer(username, password);
+            		    }
                 	}
                 	else
                 	{
-                		System.out.print("PROMPT FOR BOOKING");
+                		System.out.print("Please Select a Service: ");
+                		String service = scan.next();
+                		
+                		
+                		if(BookableService.hasWithName(service))
+                		{
+                			theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
+                		}
+                		else
+                		{
+                			System.out.println("That service does not exist");
+                		}
+                		
                 	}
 					
                     break;
@@ -127,7 +174,16 @@ public class CarShopApplication {
     
     private static void setup()
     {
-    	theCarShop.addCustomer(new Customer("user", "test", theCarShop));
+    	theCarShop.addCustomer("user", "test");
+    	
+    	Owner theOwner = new Owner("owner", "owner", theCarShop);
+    	theCarShop.setOwner(theOwner);
+    	
+    	Technician engineTech = theCarShop.addTechnician("Engine-Technician", "Engine-Technician", TechnicianType.Engine);
+    	Garage engineGarage = theCarShop.addGarage(engineTech);
+    	
+    	theCarShop.addBookableService(new Service("Engine-Swap", theCarShop, 5, engineGarage));
+    	theCarShop.addBookableService(new Service("Oil-Change", theCarShop, 1, engineGarage));
     }
     
     /***Retrieve the basic car shop***/
