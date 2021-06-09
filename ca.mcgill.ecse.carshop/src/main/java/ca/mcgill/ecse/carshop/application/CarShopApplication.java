@@ -3,6 +3,9 @@
  */
 package ca.mcgill.ecse.carshop.application;
 
+import java.sql.Date;
+import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -75,24 +78,57 @@ public class CarShopApplication {
                 		}
                 		else
                 		{
-                			for(Appointment apt: activeUser.getAppointments())
+                			List<Appointment> apts = activeUser.getAppointments();
+                			for(Appointment apt : apts)
                 			{
-	                			System.out.println(apt.getBookableService().getName());
+	                			System.out.println(apt.getBookableService().getName() + " on " + apt.getServiceBooking(0).getTimeSlot().getStartDate() + " at " + apt.getServiceBooking(0).getTimeSlot().getStartTime());
 	
 	                			System.out.print("Update? (y/n): ");
 	    						if(scan.next().equals("y"))
 	    						{
-	    							System.out.print("Please Select a New Service: ");
+	    							System.out.print("Please Select a New Service (or \"n\" to keep): ");
 	    							String service = scan.next();
 	    	                		
 	    	                		if(BookableService.hasWithName(service))
 	    	                		{
 	    	                			apt.delete();
-	    	                			theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
+	    	                			apt = theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
+	    	                		}
+	    	                		else if(service.equals("n"))
+	    	                		{
+	    	                			//do nothing
 	    	                		}
 	    	                		else
 	    	                		{
 	    	                			System.out.println("That service does not exist");
+	    	                		}
+	    	                		
+	    	                		System.out.println("The following are available time slots:");
+	    	                		
+	    	                		List<TimeSlot> slots = theCarShop.getTimeSlots();
+	    	                		
+	    	                		if(slots.size() == 0)
+	    	                		{
+	    	                			System.out.println("There are no available time slots.");
+	    	                		}
+	    	                		else
+	    	                		{
+	    	                			int counter = 1;
+	    	                    		for(TimeSlot slot : slots)
+	    	                    		{
+	    	                    			System.out.println(counter + ". " + slot.getStartDate() + ", " + slot.getStartTime());
+	    	                    			counter++;
+	    	                    		}
+	    	                    		
+	    	                    		System.out.print("Please Select a New Time Slot From Above: ");
+	    	                    		int opt = scan.nextInt();
+	    	                    		
+	    	                    		TimeSlot slot = theCarShop.getTimeSlot(opt-1);
+	    	                    		theCarShop.addTimeSlot(usedSlots.get(0));
+	    	                    		apt.addServiceBooking((Service) BookableService.getWithName(service), slot);
+	    	                    		usedSlots.add(slot);
+	    	                    		//TODO: this doesn't remove it from the list
+	    	                    		theCarShop.removeTimeSlot(slot);
 	    	                		}
 	    						}
                 			}
@@ -134,14 +170,43 @@ public class CarShopApplication {
                 		System.out.print("Please Select a Service: ");
                 		String service = scan.next();
                 		
-                		
+                		Appointment apt;
                 		if(BookableService.hasWithName(service))
                 		{
-                			theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
+                			apt = theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
                 		}
                 		else
                 		{
                 			System.out.println("That service does not exist");
+                			break;
+                		}
+                		
+                		System.out.println("The following are available time slots:");
+                		
+                		List<TimeSlot> slots = theCarShop.getTimeSlots();
+                		
+                		if(slots.size() == 0)
+                		{
+                			System.out.println("There are no available time slots.");
+                		}
+                		else
+                		{
+                			int counter = 1;
+                    		for(TimeSlot slot : slots)
+                    		{
+                    			System.out.println(counter + ". " + slot.getStartDate() + ", " + slot.getStartTime());
+                    			counter++;
+                    		}
+                    		
+                    		System.out.print("Please Select a Time Slot From Above: ");
+                    		int opt = scan.nextInt();
+                    		
+                    		TimeSlot slot = theCarShop.getTimeSlot(opt-1);
+                    		apt.addServiceBooking((Service) BookableService.getWithName(service), slot);
+                    		usedSlots.add(slot);
+                    		//TODO: this doesn't remove it from the list
+                    		theCarShop.removeTimeSlot(slot);
+                    		
                 		}
                 		
                 	}
@@ -171,6 +236,7 @@ public class CarShopApplication {
     /***Make the basic car shop***/
     static CarShop theCarShop = new CarShop();
     static Customer activeUser = null;
+    static List<TimeSlot> usedSlots = new ArrayList<TimeSlot>();
     
     private static void setup()
     {
@@ -184,6 +250,9 @@ public class CarShopApplication {
     	
     	theCarShop.addBookableService(new Service("Engine-Swap", theCarShop, 5, engineGarage));
     	theCarShop.addBookableService(new Service("Oil-Change", theCarShop, 1, engineGarage));
+    	
+    	theCarShop.addTimeSlot(Date.valueOf("2021-06-11"), Time.valueOf("13:00:00"), Date.valueOf("2021-06-11"), Time.valueOf("14:00:00"));
+    	theCarShop.addTimeSlot(Date.valueOf("2021-06-14"), Time.valueOf("09:00:00"), Date.valueOf("2021-06-14"), Time.valueOf("14:00:00"));
     }
     
     /***Retrieve the basic car shop***/
