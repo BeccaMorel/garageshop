@@ -21,6 +21,7 @@ public class TimeSlot
 
   //TimeSlot Associations
   private CarShop carShop;
+  private boolean taken;
 
   //------------------------
   // CONSTRUCTOR
@@ -33,6 +34,7 @@ public class TimeSlot
     endDate = aEndDate;
     endTime = aEndTime;
     boolean didAddCarShop = setCarShop(aCarShop);
+    taken = false;
     if (!didAddCarShop)
     {
       throw new RuntimeException("Unable to create timeSlot due to carShop. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
@@ -107,6 +109,7 @@ public class TimeSlot
     {
       return wasSet;
     }
+  
 
     CarShop existingCarShop = carShop;
     carShop = aCarShop;
@@ -117,6 +120,15 @@ public class TimeSlot
     carShop.addTimeSlot(this);
     wasSet = true;
     return wasSet;
+  }
+  
+  public boolean isAvailable() {
+	if (this.taken == true) return false;
+	else return true;  
+  }
+  
+  public void changeAvailability() {
+	 this.taken = !this.taken;
   }
 
   public void delete()

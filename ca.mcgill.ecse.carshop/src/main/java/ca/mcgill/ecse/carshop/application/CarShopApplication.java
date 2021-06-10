@@ -16,6 +16,9 @@ public class CarShopApplication {
         return "Welcome to The Car Shop!";
     }
 
+ /*
+ * main method to make the application functionnal
+ * */  
     public static void main(String[] args) {
         System.out.println(new CarShopApplication().getGreeting());
         
@@ -26,8 +29,10 @@ public class CarShopApplication {
         boolean running = true;
         Scanner scan = new Scanner(System.in);
         
+        //once it is running
         while(running)
         {
+        	//verify if user is logged in before showing menu (Customer only for now)
         	if(!isLoggedIn())
         	{
 	            System.out.println("\nThe Car Shop Main Menu");
@@ -86,17 +91,20 @@ public class CarShopApplication {
 	                			System.out.print("Update? (y/n): ");
 	    						if(scan.next().equals("y"))
 	    						{
-	    							System.out.print("Please Select a New Service (or \"n\" to keep): ");
+	    							System.out.print("Available Services:\r");
+
+	    	                		List<BookableService> services = theCarShop.getBookableServices();
+	    	                		for(BookableService service : services) {	
+	    	                    			System.out.println( "- " + service.getName());
+	    	                    	}
+	    							System.out.print("Please Select your Service: ");
 	    							String service = scan.next();
+	    	                		TimeSlot oldSlot = apt.getServiceBooking(0).getTimeSlot();
 	    	                		
 	    	                		if(BookableService.hasWithName(service))
 	    	                		{
 	    	                			apt.delete();
 	    	                			apt = theCarShop.addAppointment(activeUser, BookableService.getWithName(service));
-	    	                		}
-	    	                		else if(service.equals("n"))
-	    	                		{
-	    	                			//do nothing
 	    	                		}
 	    	                		else
 	    	                		{
@@ -107,35 +115,42 @@ public class CarShopApplication {
 	    	                		
 	    	                		List<TimeSlot> slots = theCarShop.getTimeSlots();
 	    	                		
-	    	                		if(slots.size() == 0)
+	    	                		
+    	                			int counter = 0;
+    	                			int nono = 0;
+    	                    		
+    	                			for(TimeSlot slot : slots) {
+    	                				counter++;
+    	                				if (slot.isAvailable()){
+    	                					nono++;
+	    	                    			System.out.println(counter + ". " + slot.getStartDate() + ", " + slot.getStartTime());
+	    	                    		}
+    	                    		}
+    	                    		
+    	                    		if(nono == 0)
 	    	                		{
 	    	                			System.out.println("There are no available time slots.");
 	    	                		}
-	    	                		else
-	    	                		{
-	    	                			int counter = 1;
-	    	                    		for(TimeSlot slot : slots)
-	    	                    		{
-	    	                    			System.out.println(counter + ". " + slot.getStartDate() + ", " + slot.getStartTime());
-	    	                    			counter++;
-	    	                    		}
-	    	                    		
+	    	                		
+    	                    		else {	
 	    	                    		System.out.print("Please Select a New Time Slot From Above: ");
 	    	                    		int opt = scan.nextInt();
 	    	                    		
 	    	                    		TimeSlot slot = theCarShop.getTimeSlot(opt-1);
+	    	                    		oldSlot.changeAvailability();
+	    	                    		slot.changeAvailability();
+	    	                    		
 	    	                    		theCarShop.addTimeSlot(usedSlots.get(0));
 	    	                    		apt.addServiceBooking((Service) BookableService.getWithName(service), slot);
 	    	                    		usedSlots.add(slot);
-	    	                    		//TODO: this doesn't remove it from the list
-	    	                    		theCarShop.removeTimeSlot(slot);
+	    	                    		
+	    	                    		System.out.print("Appointment Changed !");
+
 	    	                		}
 	    						}
                 			}
                 		}
-                		
                 	}
-
                     break;
                 }
 				// Signup or book appointment
@@ -167,7 +182,14 @@ public class CarShopApplication {
                 	}
                 	else
                 	{
-                		System.out.print("Please Select a Service: ");
+                		System.out.print("Available Services:\r");
+
+                		List<BookableService> services = theCarShop.getBookableServices();
+                		for(BookableService service : services) {	
+                    			System.out.println( "- " + service.getName());
+                    	}
+                		System.out.print("Please Select your Service: ");
+                		
                 		String service = scan.next();
                 		
                 		Appointment apt;
@@ -185,28 +207,33 @@ public class CarShopApplication {
                 		
                 		List<TimeSlot> slots = theCarShop.getTimeSlots();
                 		
-                		if(slots.size() == 0)
-                		{
-                			System.out.println("There are no available time slots.");
-                		}
-                		else
-                		{
-                			int counter = 1;
-                    		for(TimeSlot slot : slots)
-                    		{
+                		int counter = 0;
+                		int nono=0;
+                		
+            			for(TimeSlot slot : slots) {
+            				counter++;
+            				if (slot.isAvailable()){
+            					nono++;
                     			System.out.println(counter + ". " + slot.getStartDate() + ", " + slot.getStartTime());
-                    			counter++;
                     		}
-                    		
+                		}
+                		
+                		if(nono == 0)
+                		{
+                			System.out.println("*There are no available time slots.*");
+                		}
+                		
+                		else {	
                     		System.out.print("Please Select a Time Slot From Above: ");
                     		int opt = scan.nextInt();
                     		
                     		TimeSlot slot = theCarShop.getTimeSlot(opt-1);
+                    		slot.changeAvailability();
                     		apt.addServiceBooking((Service) BookableService.getWithName(service), slot);
                     		usedSlots.add(slot);
-                    		//TODO: this doesn't remove it from the list
-                    		theCarShop.removeTimeSlot(slot);
                     		
+                    		System.out.print("Appointment registered !");
+
                 		}
                 		
                 	}
@@ -233,11 +260,16 @@ public class CarShopApplication {
         }        
     }
     
-    /***Make the basic car shop***/
+/*
+ * instances to make the basic car shop
+ * */
     static CarShop theCarShop = new CarShop();
     static Customer activeUser = null;
     static List<TimeSlot> usedSlots = new ArrayList<TimeSlot>();
     
+/*
+ * method to setup/initialte a simulation of the functioning app
+ * */
     private static void setup()
     {
     	theCarShop.addCustomer("user", "test");
@@ -250,19 +282,24 @@ public class CarShopApplication {
     	
     	theCarShop.addBookableService(new Service("Engine-Swap", theCarShop, 5, engineGarage));
     	theCarShop.addBookableService(new Service("Oil-Change", theCarShop, 1, engineGarage));
+    	theCarShop.addBookableService(new Service("Tires", theCarShop, 1, engineGarage));
+    	
     	
     	theCarShop.addTimeSlot(Date.valueOf("2021-06-11"), Time.valueOf("13:00:00"), Date.valueOf("2021-06-11"), Time.valueOf("14:00:00"));
     	theCarShop.addTimeSlot(Date.valueOf("2021-06-14"), Time.valueOf("09:00:00"), Date.valueOf("2021-06-14"), Time.valueOf("14:00:00"));
     }
     
-    /***Retrieve the basic car shop***/
+/*
+ * method to retrieve the basic car shop in main
+ * */
     public static CarShop getCarshop() {
     	
 		return theCarShop;
     }
     
-    /***Methods for login***/
-    
+/*
+ * Methods for user to login
+ * */    
     public static boolean isLoggedIn() {
     	
 		return (activeUser != null);
